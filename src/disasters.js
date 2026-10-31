@@ -91,7 +91,8 @@ export class DisasterSimulator {
   spawnSplash(x, z) {
     const r = this.ripples[this.rippleIndex];
     this.rippleIndex = (this.rippleIndex + 1) % this.maxRipples;
-    r.mesh.position.set(x, 0.366, z);
+    const surfaceY = Math.max(0.368, this.waterMesh.position.y + 0.008);
+    r.mesh.position.set(x, surfaceY, z);
     r.life = r.maxLife;
     r.mesh.scale.set(0.3, 0.3, 0.3);
     r.mesh.material.opacity = 0.75;
@@ -149,7 +150,6 @@ export class DisasterSimulator {
   stopDisaster() {
     this.activeDisaster = null;
     this.intensity = 0.0;
-    this.rainMat.opacity = 0.0;
     this.floodFoamMat.opacity = 0.0;
     this.ripples.forEach((r) => {
       r.mesh.visible = false;
@@ -160,11 +160,14 @@ export class DisasterSimulator {
   update(dt, sunLight, hemiLight, fog, sceneBg) {
     const t = performance.now() * 0.001;
 
-    // Sel suyu çekilmesi (Afet bitince yeraltına / denize emilim)
+    // Sel suyu ve fırtına çekilmesi (Afet bitince yeraltına / denize emilim)
     if (!this.activeDisaster) {
+      if (this.rainMat.opacity > 0) {
+        this.rainMat.opacity = Math.max(0, this.rainMat.opacity - dt * 2.5);
+      }
       if (this.waterMesh.position.y > 0.05) {
         this.waterMesh.position.y = Math.max(0.05, this.waterMesh.position.y - dt * 0.35);
-        this.waterMat.opacity = Math.max(0, this.waterMat.opacity - dt * 0.5);
+        this.waterMat.opacity = Math.max(0, this.waterMat.opacity - dt * 0.45);
       }
       return;
     }
@@ -202,6 +205,7 @@ export class DisasterSimulator {
       // 2. Yağmur Çizgilerini Aşağı Doğru Yağdır
       this.rainMat.opacity = THREE.MathUtils.lerp(this.rainMat.opacity, 0.88, dt * 4.0);
       const pos = this.rainLines.geometry.attributes.position.array;
+      const currentSurfaceY = Math.max(0.368, this.waterMesh.position.y + 0.008);
 
       for (let i = 0; i < this.rainCount; i++) {
         const d = this.rainData[i];
@@ -209,9 +213,9 @@ export class DisasterSimulator {
         d.x -= 4.2 * dt;
         d.z += 2.4 * dt;
 
-        // Yere çarpınca sıçrama halkası tetikle
-        if (d.y <= 0.38) {
-          if (Math.random() < 0.35) {
+        // Su veya zemin yüzeyine çarpınca sıçrama halkası tetikle
+        if (d.y <= currentSurfaceY) {
+          if (Math.random() < 0.38) {
             this.spawnSplash(d.x, d.z);
           }
           d.y = 26 + Math.random() * 4;
@@ -224,7 +228,7 @@ export class DisasterSimulator {
         pos[idx + 1] = d.y;
         pos[idx + 2] = d.z;
         pos[idx + 3] = d.x - 0.35;
-        pos[idx + 4] = d.y - d.len;
+        pos[idx + 4] = Math.max(currentSurfaceY, d.y - d.len);
         pos[idx + 5] = d.z + 0.2;
       }
       this.rainLines.geometry.attributes.position.needsUpdate = true;
@@ -244,14 +248,14 @@ export class DisasterSimulator {
       });
 
       // 3. Sel Suyu Fiziği & Dinamik Dalga Tepecikleri
-      this.waterMat.opacity = THREE.MathUtils.lerp(this.waterMat.opacity, 0.76, dt * 2.5);
+      this.waterMat.opacity = THREE.MathUtils.lerp(this.waterMat.opacity, 0.78, dt * 2.5);
       this.floodFoamMat.opacity = 0.65 + Math.sin(t * 3.5) * 0.25;
 
       // Sünger Park Kapasitesine Göre Su Yüksekliği Dengesi:
-      // Eğer sünger kapasitesi >= 45 ise su seviyesi kaldırım altında (y ≈ 0.37) emilerek hapsedilir!
-      // Eğer sünger kapasitesi yetersizse su seviyesi y = 0.52'ye yükselerek binaları basar!
-      const targetWaterY = this.spongeCapacity >= 45 ? 0.365 : 0.51;
-      this.waterMesh.position.y = THREE.MathUtils.lerp(this.waterMesh.position.y, targetWaterY, dt * 0.16);
+      // Eğer sünger kapasitesi >= 45 ise su seviyesi kaldırım altında (y ≈ 0.405) hapsedilir!
+      // Eğer sünger kapasitesi yetersizse su seviyesi y = 0.58'e yükselerek binaları basar!
+      const targetWaterY = this.spongeCapacity >= 45 ? 0.405 : 0.58;
+      this.waterMesh.position.y = THREE.MathUtils.lerp(this.waterMesh.position.y, targetWaterY, dt * 0.85);
 
       // Toroslar'dan (Kuzey, -Z) Akdeniz'e (+Z) akan sel dalgası simülasyonu
       const geomPos = this.waterMesh.geometry.attributes.position.array;
@@ -277,6 +281,18 @@ export class DisasterSimulator {
       sunLight.intensity = 3.2;
       sunLight.color.setHex(0xfbbf24);
       hemiLight.color.setHex(0xf59e0b);
+
+      this.rainMat.opacity = 0.0;
+      this.waterMat.opacity = 0.0;
+      this.floodFoamMat.opacity = 0.0;
+    } else if (this.activeDisaster === 'WILDFIRE_SMOKE') {
+      // Toros Dağları Orman Yangını Dumanı & Hava Kalitesi Krizi
+      sceneBg.setHex(0x78350f);
+      fog.color.setHex(0x78350f);
+      fog.density = 0.016;
+      sunLight.intensity = 1.4;
+      sunLight.color.setHex(0xf97316);
+      hemiLight.color.setHex(0xd97706);
 
       this.rainMat.opacity = 0.0;
       this.waterMat.opacity = 0.0;

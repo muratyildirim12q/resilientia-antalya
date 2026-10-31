@@ -121,17 +121,28 @@ const ui = {
       radarStatus.style.color = 'var(--color-rose)';
       radarDesc.innerText = 'Toroslar’dan şiddetli taşkın kütlesi iniyor. Sünger parklar ve sarnıçlar kurun!';
       speakAURA('Uyarı Mimar: Toroslar’dan şiddetli taşkın iniyor! Sünger Parklar ve Sarnıçlarla suyu emmeliyiz.');
-    } else {
+    } else if (type === 'HEATWAVE') {
       radarStatus.innerText = 'KRİTİK UYARI: 47°C ISI KUBBESİ';
       radarStatus.style.color = 'var(--color-amber)';
       radarDesc.innerText = 'Akdeniz üzerinden aşırı sıcak hava dalgası yaklaşıyor.';
       speakAURA('Sensörler 47°C sıcak dalgası tespit etti! Rüzgar koridorları ve yeşil çatılar kurun.');
+    } else {
+      radarStatus.innerText = 'KRİTİK UYARI: ORMAN YANGINI DUMANI';
+      radarStatus.style.color = 'var(--color-amber)';
+      radarDesc.innerText = 'Toroslar yönünden yoğun orman dumanı iniyor. Yeşil koridorlar havayı filtreler!';
+      speakAURA('Toroslar’dan duman tabakası yaklaşıyor! Ağaçlı bulvarlar ve rüzgar koridorları ile havayı temizleyin.');
     }
     radarBox.style.borderColor = 'var(--color-rose)';
     radarTime.innerText = `00:${seconds.toString().padStart(2, '0')}`;
   },
   triggerDisasterStart(type) {
-    radarStatus.innerText = type === 'FLOOD' ? 'AFET AKTİF: ŞİDDETLİ TAŞKIN' : 'AFET AKTİF: 47°C ISI KUBBESİ';
+    if (type === 'FLOOD') {
+      radarStatus.innerText = 'AFET AKTİF: ŞİDDETLİ TAŞKIN';
+    } else if (type === 'HEATWAVE') {
+      radarStatus.innerText = 'AFET AKTİF: 47°C ISI KUBBESİ';
+    } else {
+      radarStatus.innerText = 'AFET AKTİF: ORMAN DUMANI & HAVA KİRLİLİĞİ';
+    }
     radarDesc.innerText = 'Kentsel direnç altyapısı gerçek zamanlı test ediliyor...';
   },
   resetRadar() {

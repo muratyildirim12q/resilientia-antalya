@@ -9,8 +9,23 @@ export class TrafficSystem {
     this.vehicles = [];
     this.trams = [];
 
+    // 11 çeşit gerçekçi Akdeniz şehri taşıt filosu
+    this.carModels = [
+      'car/sedan.glb',
+      'car/taxi.glb',
+      'car/sedan-sports.glb',
+      'car/suv.glb',
+      'car/van.glb',
+      'car/police.glb',
+      'car/ambulance.glb',
+      'vehicle-truck-green.glb',
+      'vehicle-truck-yellow.glb',
+      'vehicle-truck-red.glb',
+      'vehicle-truck-purple.glb'
+    ];
+
     this.carPrototypes = [];
-    this.basePopulation = 360;
+    this.basePopulation = 550; // Başlangıç şehir nüfusu
 
     this.loadVehicles();
     this.loadTrams();
@@ -20,7 +35,10 @@ export class TrafficSystem {
     this.carModels.forEach((filename, idx) => {
       this.loader.load(`./assets/${filename}`, (gltf) => {
         const root = gltf.scene;
-        root.scale.set(0.42, 0.42, 0.42);
+        // Kamyonlar ve binek araçlar için uygun ölçek
+        const isTruck = filename.includes('truck');
+        const s = isTruck ? 0.38 : 0.42;
+        root.scale.set(s, s, s);
         root.traverse((c) => {
           if (c.isMesh) {
             c.castShadow = true;
@@ -58,13 +76,13 @@ export class TrafficSystem {
   syncPopulation(population) {
     if (!this.carPrototypes || this.carPrototypes.length === 0) return;
 
-    const pop = Math.max(100, Number(population) || 360);
+    const pop = Math.max(100, Number(population) || 550);
     const factor = pop / this.basePopulation;
-    // Nüfus 2 katına çıktığında ~14, 4 katına çıktığında ~22, 8 katına çıktığında ~32 araç
-    const targetCount = Math.min(36, Math.max(8, Math.round(8 * Math.pow(factor, 0.72))));
+    // Nüfus 1x -> 8 araç, 2x (~1100) -> 14 araç, 4x (~2200) -> 23 araç, 8x (~4400) -> 36 araç
+    const targetCount = Math.min(40, Math.max(8, Math.round(8 * Math.pow(factor, 0.72))));
 
     // Gerekli ise yeni araçlar spawn et
-    while (this.vehicles.length < targetCount) {
+    while (this.vehicles.length < targetCount && this.carPrototypes.length > 0) {
       const proto = this.carPrototypes[this.vehicles.length % this.carPrototypes.length];
       const clone = proto.clone();
       this.scene.add(clone);
@@ -81,7 +99,7 @@ export class TrafficSystem {
       this.vehicles.push(vehicle);
     }
 
-    // Nüfus düşerse fazla araçları nazikçe kaldır
+    // Nüfus düşerse fazla araçları kaldır
     while (this.vehicles.length > targetCount && this.vehicles.length > 8) {
       const removed = this.vehicles.pop();
       if (removed && removed.mesh) {
@@ -92,7 +110,7 @@ export class TrafficSystem {
 
   loadTrams() {
     [0, 1].forEach((idx) => {
-      this.loader.load('./assets/train/train-tram-modern.glb', (gltf) => {
+      this.loader.load('./assets/train-tram-modern.glb', (gltf) => {
         const root = gltf.scene;
         root.scale.set(0.62, 0.62, 0.62);
         root.traverse((c) => {
@@ -156,7 +174,8 @@ export class TrafficSystem {
     v.nextCell = neighbors.length > 0 ? neighbors[Math.floor(Math.random() * neighbors.length)] : startCell;
     v.progress = 0;
     v.mesh.visible = true;
-    v.mesh.position.set(startCell.x, 0.382, startCell.z);
+    // Asfalt yüzeyi: zemin 0.36 + karo 0.075 = 0.435
+    v.mesh.position.set(startCell.x, 0.435, startCell.z);
   }
 
   assignRandomTramCell(t, seed = 0) {
@@ -176,7 +195,8 @@ export class TrafficSystem {
     t.nextCell = neighbors.length > 0 ? neighbors[0] : startCell;
     t.progress = 0;
     t.mesh.visible = true;
-    t.mesh.position.set(startCell.x, 0.396, startCell.z);
+    // Ray yüksekliği: 0.66
+    t.mesh.position.set(startCell.x, 0.66, startCell.z);
   }
 
   update(dt) {
@@ -200,7 +220,7 @@ export class TrafficSystem {
         if (neighbors.length > 0) {
           v.nextCell = neighbors[0];
         } else {
-          v.mesh.position.set(v.currCell.x, 0.382, v.currCell.z);
+          v.mesh.position.set(v.currCell.x, 0.435, v.currCell.z);
           return;
         }
       }
@@ -219,7 +239,9 @@ export class TrafficSystem {
           v.nextCell = neighbors[0];
         } else {
           const forwardChoices = neighbors.filter((n) => n !== v.prevCell);
-          v.nextCell = forwardChoices[Math.floor(Math.random() * forwardChoices.length)];
+          v.nextCell = forwardChoices.length > 0
+            ? forwardChoices[Math.floor(Math.random() * forwardChoices.length)]
+            : neighbors[0];
         }
       }
 
@@ -237,7 +259,7 @@ export class TrafficSystem {
       const px = THREE.MathUtils.lerp(v.currCell.x, v.nextCell.x, v.progress) + rx;
       const pz = THREE.MathUtils.lerp(v.currCell.z, v.nextCell.z, v.progress) + rz;
 
-      v.mesh.position.set(px, 0.382, pz);
+      v.mesh.position.set(px, 0.435, pz);
 
       if (Math.abs(dx) > 0.001 || Math.abs(dz) > 0.001) {
         const targetAngle = Math.atan2(ux, uz);
@@ -267,7 +289,7 @@ export class TrafficSystem {
         if (neighbors.length > 0) {
           t.nextCell = neighbors[0];
         } else {
-          t.mesh.position.set(t.currCell.x, 0.396, t.currCell.z);
+          t.mesh.position.set(t.currCell.x, 0.66, t.currCell.z);
           return;
         }
       }
@@ -285,7 +307,9 @@ export class TrafficSystem {
           t.nextCell = neighbors[0];
         } else {
           const forwardChoices = neighbors.filter((n) => n !== t.prevCell);
-          t.nextCell = forwardChoices[Math.floor(Math.random() * forwardChoices.length)];
+          t.nextCell = forwardChoices.length > 0
+            ? forwardChoices[Math.floor(Math.random() * forwardChoices.length)]
+            : neighbors[0];
         }
       }
 
@@ -297,7 +321,7 @@ export class TrafficSystem {
 
       const px = THREE.MathUtils.lerp(t.currCell.x, t.nextCell.x, t.progress);
       const pz = THREE.MathUtils.lerp(t.currCell.z, t.nextCell.z, t.progress);
-      t.mesh.position.set(px, 0.396, pz);
+      t.mesh.position.set(px, 0.66, pz);
 
       if (Math.abs(dx) > 0.001 || Math.abs(dz) > 0.001) {
         const targetAngle = Math.atan2(ux, uz);

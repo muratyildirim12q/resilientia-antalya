@@ -31,11 +31,11 @@ export class WorldScene {
     this.renderer.toneMappingExposure = 1.18;
     this.container.appendChild(this.renderer.domElement);
 
-    // OrbitControls (İzometrik Şehir Kamerası)
+    // OrbitControls (İzometrik Şehir Kamerası - Zemin Düzleminde Kaydırma)
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.08;
-    this.controls.screenSpacePanning = true;
+    this.controls.screenSpacePanning = false; // Zemin düzleminde (XZ) kaydırma, düşey sapma yapmaz
     this.controls.maxPolarAngle = Math.PI / 2.22;
     this.controls.minPolarAngle = 0.25;
     this.controls.minDistance = 10;
@@ -47,8 +47,12 @@ export class WorldScene {
       RIGHT: THREE.MOUSE.ROTATE
     };
 
-    // Klavye ile akıcı izometrik kamera kaydırma (WASD / Ok tuşları + Eylemsizlik)
+    // Sağ tıklama menüsünü engelle (rahat kamera döndürme / kaydırma için)
+    this.container.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Klavye ve Kenar (Edge) ile akıcı izometrik kamera kaydırma
     this.keys = { w: false, a: false, s: false, d: false };
+    this.edgePan = { left: false, right: false, up: false, down: false };
     this.panVelocity = new THREE.Vector3(0, 0, 0);
     this.setupKeyboardPan();
 
@@ -76,18 +80,37 @@ export class WorldScene {
       if (k === 'a' || e.code === 'KeyA' || e.key === 'ArrowLeft') this.keys.a = false;
       if (k === 'd' || e.code === 'KeyD' || e.key === 'ArrowRight') this.keys.d = false;
     });
+
+    // Kenar Kaydırma (Edge Panning - RTS / Şehir Kurma Standardı)
+    window.addEventListener('pointermove', (e) => {
+      const edge = 18;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (e.clientX >= 0 && e.clientX <= w && e.clientY >= 0 && e.clientY <= h) {
+        this.edgePan.left = e.clientX < edge;
+        this.edgePan.right = e.clientX > w - edge;
+        this.edgePan.up = e.clientY < edge;
+        this.edgePan.down = e.clientY > h - edge;
+      }
+    });
+    window.addEventListener('pointerleave', () => {
+      this.edgePan.left = false;
+      this.edgePan.right = false;
+      this.edgePan.up = false;
+      this.edgePan.down = false;
+    });
   }
 
   setupSunLighting() {
     // Sıcak Akdeniz Güneşi
     this.sunLight = new THREE.DirectionalLight(0xfffbeb, 2.3);
-    this.sunLight.position.set(32, 46, 28);
+    this.sunLight.position.set(34, 48, 28);
     this.sunLight.castShadow = true;
     this.sunLight.shadow.mapSize.width = 2048;
     this.sunLight.shadow.mapSize.height = 2048;
     this.sunLight.shadow.camera.near = 1;
-    this.sunLight.shadow.camera.far = 140;
-    const d = 32;
+    this.sunLight.shadow.camera.far = 160;
+    const d = 42;
     this.sunLight.shadow.camera.left = -d;
     this.sunLight.shadow.camera.right = d;
     this.sunLight.shadow.camera.top = d;
@@ -347,13 +370,13 @@ export class WorldScene {
 
   // Akdeniz Çimen Kümeleri, Yabani Çiçekler ve Kireçtaşı Çakıl Taşları
   setupGrassAndFlora() {
-    // 1. Düşük Poligonlu Çim Demeti Geometrisi (Çapraz 3 bıçak kanadı)
-    const blade1 = new THREE.PlaneGeometry(0.38, 0.48);
+    // 1. Düşük Poligonlu Çim Demeti Geometrisi (Çapraz 3 bıçak kanadı, non-indexed ile kusursuz üçgenler)
+    const blade1 = new THREE.PlaneGeometry(0.38, 0.48).toNonIndexed();
     blade1.translate(0, 0.24, 0);
-    const blade2 = new THREE.PlaneGeometry(0.38, 0.44);
+    const blade2 = new THREE.PlaneGeometry(0.38, 0.44).toNonIndexed();
     blade2.rotateY(Math.PI / 3);
     blade2.translate(0, 0.22, 0);
-    const blade3 = new THREE.PlaneGeometry(0.38, 0.46);
+    const blade3 = new THREE.PlaneGeometry(0.38, 0.46).toNonIndexed();
     blade3.rotateY((2 * Math.PI) / 3);
     blade3.translate(0, 0.23, 0);
 
@@ -383,7 +406,7 @@ export class WorldScene {
       side: THREE.DoubleSide
     });
 
-    const grassCount = 650;
+    const grassCount = 750;
     const grassInstanced = new THREE.InstancedMesh(tuftGeom, tuftMat, grassCount);
     grassInstanced.receiveShadow = true;
 
@@ -404,13 +427,12 @@ export class WorldScene {
     };
 
     while (placed < grassCount) {
-      const gx = (rand() - 0.5) * 92;
-      const gz = rand() * 42 - 25; // z: -25 to +17 (kıyıya kadar)
+      const gx = (rand() - 0.5) * 96;
+      const gz = rand() * 44 - 26; // z: -26 to +18 (kordon kenarına kadar)
 
-      // Şehir içi merkezi yol koridorunun tam merkezini (row=6, z=1.5 civarı) ve otoyolu temiz tut
-      if (Math.abs(gx) < 17.5 && Math.abs(gz - 1.5) < 16.5) {
-        // İmar alanı içi: sadece boş hücre aralıklarında seyrek serpme
-        if (rand() > 0.35) continue;
+      // Şehir içi imar ızgarasını (x: [-18, 18], z: [-17.5, 17.5]) temiz tut; çimenler yolların içinden çıkmasın!
+      if (Math.abs(gx) < 18.2 && gz > -17.8 && gz < 16.5) {
+        continue;
       }
 
       const s = 0.75 + rand() * 0.65;
@@ -435,9 +457,9 @@ export class WorldScene {
 
     const flowerGroup = new THREE.Group();
     for (let f = 0; f < 80; f++) {
-      const fx = (rand() - 0.5) * 85;
-      const fz = rand() * 38 - 22;
-      if (Math.abs(fx) < 17 && Math.abs(fz - 1.5) < 16) continue;
+      const fx = (rand() - 0.5) * 90;
+      const fz = rand() * 40 - 24;
+      if (Math.abs(fx) < 18.2 && fz > -17.8 && fz < 16.5) continue;
 
       const fMesh = new THREE.Mesh(flowerGeom, f % 2 === 0 ? flowerMatYellow : flowerMatPurple);
       fMesh.position.set(fx, 0.42 + (f % 3) * 0.05, fz);
@@ -553,10 +575,10 @@ export class WorldScene {
     right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
 
     const moveDir = new THREE.Vector3(0, 0, 0);
-    if (this.keys.w) moveDir.add(forward);
-    if (this.keys.s) moveDir.sub(forward);
-    if (this.keys.d) moveDir.add(right);
-    if (this.keys.a) moveDir.sub(right);
+    if (this.keys.w || this.edgePan.up) moveDir.add(forward);
+    if (this.keys.s || this.edgePan.down) moveDir.sub(forward);
+    if (this.keys.d || this.edgePan.right) moveDir.add(right);
+    if (this.keys.a || this.edgePan.left) moveDir.sub(right);
 
     if (moveDir.lengthSq() > 0) {
       moveDir.normalize();
@@ -569,12 +591,17 @@ export class WorldScene {
 
     if (this.panVelocity.lengthSq() > 0.001) {
       const deltaMove = this.panVelocity.clone().multiplyScalar(dt);
-      this.camera.position.add(deltaMove);
-      this.controls.target.add(deltaMove);
+      const oldTargetX = this.controls.target.x;
+      const oldTargetZ = this.controls.target.z;
+      const clampedX = THREE.MathUtils.clamp(oldTargetX + deltaMove.x, -45, 45);
+      const clampedZ = THREE.MathUtils.clamp(oldTargetZ + deltaMove.z, -35, 35);
+      const actualMoveX = clampedX - oldTargetX;
+      const actualMoveZ = clampedZ - oldTargetZ;
 
-      // Harita sınır kısıtlaması (Şehrin dışına kaymayı önler)
-      this.controls.target.x = THREE.MathUtils.clamp(this.controls.target.x, -45, 45);
-      this.controls.target.z = THREE.MathUtils.clamp(this.controls.target.z, -35, 35);
+      this.controls.target.x = clampedX;
+      this.controls.target.z = clampedZ;
+      this.camera.position.x += actualMoveX;
+      this.camera.position.z += actualMoveZ;
     }
 
     // 2. Bulutların batıdan doğuya süzülmesi (Yumuşak rüzgar akışı)

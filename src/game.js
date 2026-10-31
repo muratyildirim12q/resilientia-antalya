@@ -354,7 +354,8 @@ export class GameManager {
       this.crisisTimer -= delta;
       if (this.crisisTimer <= 10.0) {
         this.crisisPhase = 'WARNING';
-        this.currentDisaster = Math.random() > 0.5 ? 'FLOOD' : 'HEATWAVE';
+        const rand = Math.random();
+        this.currentDisaster = rand < 0.45 ? 'FLOOD' : rand < 0.75 ? 'HEATWAVE' : 'WILDFIRE_SMOKE';
         sound.playAlarm();
         this.ui.triggerDisasterWarning(this.currentDisaster, Math.ceil(this.crisisTimer));
       }
@@ -380,6 +381,13 @@ export class GameManager {
         const requiredCooling = 25;
         if (this.coolingPower < requiredCooling) {
           const damageRate = (requiredCooling - this.coolingPower) * 0.18 * delta;
+          this.health = Math.max(0, this.health - damageRate);
+        }
+      } else if (this.currentDisaster === 'WILDFIRE_SMOKE') {
+        const requiredCleanAir = 18;
+        const currentCleanAir = this.coolingPower;
+        if (currentCleanAir < requiredCleanAir) {
+          const damageRate = (requiredCleanAir - currentCleanAir) * 0.16 * delta;
           this.health = Math.max(0, this.health - damageRate);
         }
       }

@@ -466,9 +466,9 @@ export class BuildingManager {
     const activeW = count === 1 && (W || E) ? true : W;
     const activeE = count === 1 && (W || E) ? true : E;
 
-    // Merkez çim ve ray göbeği
-    const hubTurf = new THREE.Mesh(new THREE.BoxGeometry(0.96, 0.02, 0.96), this.turfMat);
-    hubTurf.position.set(0, 0.025, 0);
+    // Merkez çim ve ray göbeği (Asfalt yüzeyi y = 0.075 üzerinde)
+    const hubTurf = new THREE.Mesh(new THREE.BoxGeometry(0.96, 0.016, 0.96), this.turfMat);
+    hubTurf.position.set(0, 0.078, 0);
     group.add(hubTurf);
 
     const addArm = (dir) => {
@@ -478,13 +478,13 @@ export class BuildingManager {
       else if (dir === 'W') armGroup.rotation.y = Math.PI / 2;
       else if (dir === 'E') armGroup.rotation.y = -Math.PI / 2;
 
-      const turf = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.02, 1.04), this.turfMat);
-      turf.position.set(0, 0.025, -0.98);
+      const turf = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.016, 1.04), this.turfMat);
+      turf.position.set(0, 0.078, -0.98);
       armGroup.add(turf);
 
       [-0.32, 0.32].forEach((rx) => {
-        const rail = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.028, 1.48), this.railMat);
-        rail.position.set(rx, 0.036, -0.75);
+        const rail = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.026, 1.48), this.railMat);
+        rail.position.set(rx, 0.088, -0.75);
         armGroup.add(rail);
       });
 
@@ -502,22 +502,23 @@ export class BuildingManager {
     if (isHorizOnly) archGroup.rotation.y = Math.PI / 2;
 
     const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 1.45, 8), this.railMat);
-    mast.position.set(-1.26, 0.82, 0);
+    mast.position.set(-1.26, 0.88, 0);
     archGroup.add(mast);
 
     const arm = new THREE.Mesh(new THREE.BoxGeometry(1.32, 0.04, 0.05), this.railMat);
-    arm.position.set(-0.62, 1.52, 0);
+    arm.position.set(-0.62, 1.58, 0);
     archGroup.add(arm);
 
     const solarCap = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.03, 0.32), this.solarMat);
-    solarCap.position.set(-0.35, 1.55, 0);
+    solarCap.position.set(-0.35, 1.61, 0);
     archGroup.add(solarCap);
 
     group.add(archGroup);
   }
 
   addRoadMarkings(group, { N, S, W, E, count }) {
-    const y = 0.027;
+    // Asfalt yüzeyi y = 0.075'tedir. Çizgiler 0.078'de, mazgal ve rögarlar 0.08'de tam oturur!
+    const y = 0.078;
 
     // Yaya Geçidi Çizgileri Yardımcısı (Zebra Crossing)
     const addCrosswalk = (dir) => {
@@ -543,7 +544,7 @@ export class BuildingManager {
     // Sünger Şehir Yağmur Suyu Mazgalı (Kaldırım Kenarı Drenajı)
     const addDrainGrate = (px, pz, isRot = false) => {
       const grate = new THREE.Mesh(new THREE.BoxGeometry(isRot ? 0.36 : 0.22, 0.012, isRot ? 0.22 : 0.36), this.drainMat);
-      grate.position.set(px, 0.029, pz);
+      grate.position.set(px, 0.08, pz);
       group.add(grate);
     };
 
@@ -567,13 +568,13 @@ export class BuildingManager {
         addDrainGrate(0, -0.92, true);
         addDrainGrate(0, 0.92, true);
         const manhole = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.015, 12), this.manholeMat);
-        manhole.position.set(0.5, 0.03, 0.28);
+        manhole.position.set(0.5, 0.081, 0.28);
         group.add(manhole);
       } else {
         addDrainGrate(-0.92, 0, false);
         addDrainGrate(0.92, 0, false);
         const manhole = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.015, 12), this.manholeMat);
-        manhole.position.set(0.28, 0.03, 0.5);
+        manhole.position.set(0.28, 0.081, 0.5);
         group.add(manhole);
       }
       return;
@@ -588,7 +589,7 @@ export class BuildingManager {
 
       // Merkez kavşak döküm rögar kapağı
       const manhole = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.016, 12), this.manholeMat);
-      manhole.position.set(0, 0.03, 0);
+      manhole.position.set(0, 0.081, 0);
       group.add(manhole);
       return;
     }

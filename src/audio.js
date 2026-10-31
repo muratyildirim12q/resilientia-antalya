@@ -30,16 +30,18 @@ class SoundEngine {
     return this.isMuted;
   }
 
-  // Şehir Gürültüsü & Akdeniz Esintisi (Hafif Ambiyans)
+  // Şehir Gürültüsü & Akdeniz Esintisi (Hafif ve Akıcı Ambiyans)
   startCityAmbience() {
     if (this.ambienceStarted || !this.init()) return;
     try {
       this.ambienceStarted = true;
       const now = this.ctx.currentTime;
 
-      // 1. Akdeniz kıyı meltemi & şehir uğultusu (Filtrelenmiş Pembe Gürültü)
-      const bufferSize = this.ctx.sampleRate * 2;
-      const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      // 1. Akdeniz kıyı meltemi & şehir uğultusu (5 saniyelik kesintisiz dairesel pembe gürültü)
+      const sampleRate = this.ctx.sampleRate;
+      const duration = 5;
+      const bufferSize = sampleRate * duration;
+      const noiseBuffer = this.ctx.createBuffer(1, bufferSize, sampleRate);
       const data = noiseBuffer.getChannelData(0);
       let b0 = 0, b1 = 0, b2 = 0;
       for (let i = 0; i < bufferSize; i++) {
@@ -47,27 +49,43 @@ class SoundEngine {
         b0 = 0.99886 * b0 + white * 0.0555179;
         b1 = 0.99332 * b1 + white * 0.0750759;
         b2 = 0.96900 * b2 + white * 0.1538520;
-        data[i] = (b0 + b1 + b2) * 0.18;
+        data[i] = (b0 + b1 + b2) * 0.16;
+      }
+
+      // Dairesel döngü için uç noktaları yumuşak çapraz geçişle (crossfade) birleştir
+      const fadeLen = Math.floor(sampleRate * 0.4);
+      for (let i = 0; i < fadeLen; i++) {
+        const t = i / fadeLen;
+        data[i] = data[i] * t + data[bufferSize - fadeLen + i] * (1 - t);
       }
 
       const noiseSource = this.ctx.createBufferSource();
       noiseSource.buffer = noiseBuffer;
       noiseSource.loop = true;
 
+      // Kıyı esintisi hafifçe dalgalanan alçak geçiren filtre (LFO ile 200Hz - 320Hz arası süzülme)
       const lowpass = this.ctx.createBiquadFilter();
       lowpass.type = 'lowpass';
       lowpass.frequency.setValueAtTime(260, now);
+
+      const lfo = this.ctx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(0.12, now); // 8 saniyede bir hafif esinti dalgalanması
+      const lfoGain = this.ctx.createGain();
+      lfoGain.gain.setValueAtTime(50, now);
+      lfo.connect(lfoGain);
+      lfoGain.connect(lowpass.frequency);
 
       // 2. Çok hafif uzak şehir trafiği ve liman derinliği (55Hz sub)
       const subOsc = this.ctx.createOscillator();
       subOsc.type = 'sine';
       subOsc.frequency.setValueAtTime(55, now);
       const subGain = this.ctx.createGain();
-      subGain.gain.setValueAtTime(0.015, now);
+      subGain.gain.setValueAtTime(0.012, now);
       subOsc.connect(subGain);
 
       this.ambienceGain = this.ctx.createGain();
-      this.ambienceGain.gain.setValueAtTime(this.isMuted ? 0 : 0.038, now);
+      this.ambienceGain.gain.setValueAtTime(this.isMuted ? 0 : 0.032, now);
 
       noiseSource.connect(lowpass);
       lowpass.connect(this.ambienceGain);
@@ -75,6 +93,7 @@ class SoundEngine {
       this.ambienceGain.connect(this.ctx.destination);
 
       noiseSource.start(now);
+      lfo.start(now);
       subOsc.start(now);
     } catch {
       // Audio autoplay policy fallback
