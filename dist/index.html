@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RESILIENTIA: Antalya 2031 (COP31)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" crossorigin src="/assets/index-Dhcld8s_.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Bb42wDlR.css">
+</head>
+<body>
+  <!-- 3D Three.js Sahnesi -->
+  <div id="canvas-container"></div>
+
+  <!-- Dashboard UI Overlay -->
+  <div id="dashboard-overlay">
+    <!-- 1. ÜST GLOBAL BAR (Cities: Skylines Tarzı Kompakt Bilgi Şeridi) -->
+    <header class="top-bar glass-panel interactive">
+      <div class="brand-section">
+        <div class="brand-logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1m4 0h1m-6 4h1m4 0h1m-5 8v-5h4v5"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">RESILIENTIA</h1>
+          <span class="brand-badge">ANTALYA 2031</span>
+        </div>
+      </div>
+
+      <div class="metrics-cluster">
+        <!-- Belediye Bütçesi & Gelir -->
+        <div class="metric-item">
+          <svg class="ui-svg-icon icon-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          <div class="metric-content">
+            <span class="metric-lbl">BELEDİYE FONU</span>
+            <div class="metric-val-row">
+              <span class="metric-val val-emerald" id="val-budget">$9,500</span>
+              <span class="metric-sub-badge" id="val-income">+$240</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nüfus -->
+        <div class="metric-item">
+          <svg class="ui-svg-icon icon-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <div class="metric-content">
+            <span class="metric-lbl">NÜFUS</span>
+            <span class="metric-val" id="val-pop">360</span>
+          </div>
+        </div>
+
+        <!-- Karbon Net-Zero -->
+        <div class="metric-item">
+          <svg class="ui-svg-icon icon-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+          </svg>
+          <div class="metric-content">
+            <span class="metric-lbl">KARBON AYAK İZİ</span>
+            <span class="metric-val val-cyan" id="val-carbon">65% NET-ZERO</span>
+          </div>
+        </div>
+
+        <!-- Şehir Direnci (HP) -->
+        <div class="metric-item">
+          <svg class="ui-svg-icon icon-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <div class="metric-content">
+            <span class="metric-lbl">ŞEHİR DİRENCİ</span>
+            <span class="metric-val val-emerald" id="val-health">100.0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hız Kontrolü & Ses -->
+      <div class="controls-cluster">
+        <button id="btn-speed" class="btn-ctrl" title="Simülasyon Hızı [Boşluk]">1x</button>
+        <button id="btn-sound" class="btn-ctrl" title="Ses Aç/Kapat">
+          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+        <button id="btn-cam-reset" class="btn-ctrl" title="Kamerayı Sıfırla [R]">
+          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+        </button>
+        <button id="btn-aura-guide" class="btn-ctrl" title="AURA İklim Rehberi [H]">
+          <svg class="ui-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. SOL KOMPAKT PANEL: AURA DANIŞMAN & DİRENÇ KAPASİTESİ -->
+    <aside class="left-dock interactive" id="left-dock">
+      <div class="aura-container glass-panel">
+        <div class="aura-header">
+          <div class="aura-avatar">
+            <img src="./assets/aura-avatar.png" alt="AURA 3D AI Advisor" class="aura-avatar-img">
+          </div>
+          <div class="aura-meta">
+            <span class="aura-name">AURA v5.0</span>
+            <span class="aura-role">COP31 Baş İklim Danışmanı</span>
+          </div>
+        </div>
+        <div class="aura-textbox" id="aura-text">
+          <span id="aura-content">Sistem çevrimiçi Mimar. Şehrinizi yollar, eko-konutlar ve sünger parklarla büyütün.</span>
+          <span class="cursor-blink"></span>
+        </div>
+      </div>
+
+      <div class="analytics-card glass-panel" id="analytics-panel">
+        <span class="card-title">İklim Direnç Kapasitesi</span>
+        <div class="progress-row">
+          <div class="progress-header">
+            <span>Sünger Su Emilimi (Hedef: 45)</span>
+            <span id="val-sponge" class="val-cyan">0 m³/s</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="bar-sponge" style="width: 0%; background: var(--color-cyan);"></div>
+          </div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-header">
+            <span>Termal Soğutma (Hedef: -25°C)</span>
+            <span id="val-cooling" class="val-emerald">-0°C</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="bar-cooling" style="width: 0%; background: var(--color-emerald);"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 3. SAĞ DOCK: METEOROLOJİ & KRİZ RADARI -->
+    <aside class="right-dock glass-panel interactive">
+      <div class="radar-top-row">
+        <span class="card-title">Meteoroloji Radarı</span>
+        <span class="radar-countdown" id="radar-time">--:--</span>
+      </div>
+      <div class="radar-warning-box" id="radar-box">
+        <span class="radar-status" id="radar-status">NORMAL METEOROLOJİ</span>
+        <span class="radar-desc" id="radar-desc">Toros Havzası dengeli; taşkın riski tespit edilmedi.</span>
+      </div>
+    </aside>
+
+    <!-- 4. ALT CITIES: SKYLINES İNŞAAT & ARAÇ SİSTEMİ -->
+    <div class="bottom-ui-wrapper">
+      <!-- KATEGORİLİ MİNİ ALT BAR (Çekiç İkonuna Tıklanınca Açılır) -->
+      <div class="build-subbar glass-panel interactive" id="build-subbar">
+        <div class="subbar-header">
+          <div class="category-tabs" id="category-tabs">
+            <!-- JS ile Kategori Sekmeleri oluşturulur -->
+          </div>
+          <button class="subbar-close-btn" id="btn-close-subbar" title="İnşaat Menüsünü Kapat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="subbar-items" id="category-items">
+          <!-- JS ile Seçili Kategorinin Yapı Kartları oluşturulur -->
+        </div>
+
+        <div class="subbar-info-strip" id="subbar-info">
+          <span class="info-strip-title" id="info-item-name">Şehir Yolu</span>
+          <span class="info-strip-desc" id="info-item-desc">Otomatik kavşak ve viraj bağlantılı asfalt şehir caddesi.</span>
+        </div>
+      </div>
+
+      <!-- ANA ALT ARAÇ ÇUBUĞU (Primary Toolbar: Çekiç, Hızlı Yol, Buldozer, İncele, Kamera) -->
+      <footer class="primary-toolbar glass-panel interactive" id="primary-toolbar">
+        <!-- 1. ÇEKİÇ (İNŞAAT) BUTONU -->
+        <button class="tool-btn active" id="btn-tool-hammer" title="İnşaat Menüsü [B]">
+          <div class="tool-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/>
+              <path d="M17.64 15 22 10.64"/>
+              <path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/>
+            </svg>
+          </div>
+          <span class="tool-label">İnşaat</span>
+        </button>
+
+        <!-- 2. HIZLI YOL ARACI -->
+        <button class="tool-btn" id="btn-tool-road" title="Hızlı Yol Döşeme Aracı [1]">
+          <div class="tool-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19L8 5M16 5l4 14M12 6v2m0 4v2m0 4v2"/>
+            </svg>
+          </div>
+          <span class="tool-label">Yollar</span>
+        </button>
+
+        <!-- 3. YIKIM / BULDOZER ARACI -->
+        <button class="tool-btn tool-danger" id="btn-tool-bulldoze" title="Yıkım / Buldozer Aracı (%50 İade) [X]">
+          <div class="tool-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <line x1="10" y1="11" x2="10" y2="17"/>
+              <line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+          </div>
+          <span class="tool-label">Yıkım</span>
+        </button>
+
+        <!-- 4. İNCELEME / ANALİTİK ARACI -->
+        <button class="tool-btn" id="btn-tool-inspect" title="Parsel İnceleme & Analitik [I]">
+          <div class="tool-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <line x1="11" y1="8" x2="11" y2="14"/>
+              <line x1="8" y1="11" x2="14" y2="11"/>
+            </svg>
+          </div>
+          <span class="tool-label">İncele</span>
+        </button>
+
+        <!-- 5. KUŞBAKIŞI / İZOMETRİK KAMERA -->
+        <button class="tool-btn" id="btn-tool-camera" title="Kuşbakışı / İzometrik Açıyı Değiştir [V]">
+          <div class="tool-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+              <polyline points="2 17 12 22 22 17"/>
+              <polyline points="2 12 12 17 22 12"/>
+            </svg>
+          </div>
+          <span class="tool-label">Kamera</span>
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- AURA Başlangıç ve İklim Rehberi Modalı -->
+  <div id="start-modal" class="fullscreen-modal">
+    <div class="aura-briefing-modal glass-panel">
+      <div class="briefing-left">
+        <div class="briefing-avatar-wrap">
+          <img src="./assets/aura-avatar.png" alt="AURA 3D AI Director" class="briefing-avatar-img">
+          <div class="avatar-glow-ring"></div>
+        </div>
+        <div class="briefing-author">
+          <span class="briefing-author-name">AURA v5.0</span>
+          <span class="briefing-author-role">COP31 Baş İklim Danışmanı</span>
+          <span class="briefing-author-status">SİSTEM ÇEVRİMİÇİ</span>
+        </div>
+      </div>
+
+      <div class="briefing-right">
+        <div class="briefing-header">
+          <span class="briefing-tag">COP31 ANTALYA İKLİM ZİRVESİ 2031</span>
+          <h2 class="briefing-title">Hoş Geldiniz Mimar! Sünger Metropol Başlıyor</h2>
+          <p class="briefing-subtitle">
+            Toros Dağları ile Akdeniz kıyısında, iklim krizine meydan okuyan dünyanın ilk tam dirençli Sünger Şehrini kuruyoruz. İşte bilmeniz gereken 4 temel mekanizma:
+          </p>
+        </div>
+
+        <div class="briefing-grid">
+          <!-- 1. Menüler ve İnşaat -->
+          <div class="briefing-card">
+            <div class="bcard-header">
+              <svg class="bcard-icon icon-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19L8 5M16 5l4 14M12 6v2m0 4v2m0 4v2"/></svg>
+              <span class="bcard-title">1. İnşaat ve Araçlar Menüsü</span>
+            </div>
+            <p class="bcard-text">
+              Alt menüden yollar döşeyin (sürükleyerek uzatın). Konut, ticaret ve sünger parkları cadde kenarlarına planlayın. <strong>Yıkım</strong> ile yapıları kaldırabilir (%50 iade), <strong>İncele</strong> ile parsel kapasitesini görebilirsiniz.
+            </p>
+          </div>
+
+          <!-- 2. Nüfus ve Belediye Geliri -->
+          <div class="briefing-card">
+            <div class="bcard-header">
+              <svg class="bcard-icon icon-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span class="bcard-title">2. Nüfus & Şehir Trafiği</span>
+            </div>
+            <p class="bcard-text">
+              Eko-konutlar ve apartmanlarla nüfusunuz artar. Nüfus arttıkça her 5 saniyede kasaya belediye vergi geliri akar ve <strong>nüfus her 2 katına çıktığında</strong> sokaklardaki araç sayısı artar!
+            </p>
+          </div>
+
+          <!-- 3. Karbon Ayak İzi -->
+          <div class="briefing-card">
+            <div class="bcard-header">
+              <svg class="bcard-icon icon-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+              <span class="bcard-title">3. Karbon Ayak İzi (% Net-Zero)</span>
+            </div>
+            <p class="bcard-text">
+              Üst bardaki bu bar kentin net emisyon durumunu ölçer. Ağaçlı bulvarlar, yeşil çatılar ve güneş tramvayları ile bu göstergeyi <strong>%0 Net-Zero</strong> seviyesine indirmelisiniz.
+            </p>
+          </div>
+
+          <!-- 4. Şehir Direnci & Sünger Altyapı -->
+          <div class="briefing-card">
+            <div class="bcard-header">
+              <svg class="bcard-icon icon-emerald" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span class="bcard-title">4. Şehir Direnci & Afet Kalkanı</span>
+            </div>
+            <p class="bcard-text">
+              Toroslar'dan inen flaş sel taşkınlarına ve 47°C aşırı sıcak hava kubbelerine karşı kentinizi Sünger Parklar ve Sarnıçlarla donatarak direnci %100'de tutun.
+            </p>
+          </div>
+        </div>
+
+        <!-- Kritik AURA İpucu Kutusu -->
+        <div class="briefing-tip-box">
+          <div class="tip-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          </div>
+          <div class="tip-content">
+            <span class="tip-tag">AURA KRİTİK İPUCU:</span>
+            <span class="tip-desc">Toroslar'dan inen taşkın suyu kuzeyden güneye akar. Şehrin kuzey aksına ve ana yol kavşaklarına Sünger Parklar yerleştirmek taşkını anında hapseder!</span>
+          </div>
+        </div>
+
+        <div class="briefing-actions">
+          <button id="btn-start" class="btn-primary btn-briefing-start">ANLADIM, ŞEHRE BAŞLA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zafer Modalı -->
+  <div id="victory-modal" class="fullscreen-modal hidden">
+    <div class="modal-box glass-panel" style="border-color: var(--color-emerald);">
+      <h2 style="font-size: 24px; font-weight: 800; color: var(--color-emerald);">COP31 İKLİM DİRENÇ ŞAMPİYONU</h2>
+      <p style="font-size: 13px; color: #e2e8f0; line-height: 1.6;">
+        Tebrikler Mimar! Antalya'yı dünyanın ilk tam dirençli Sünger Metropolü haline getirdiniz.
+        Kentin karbon ayak izi sıfırlandı ve aşırı hava olayları kentsel altyapınıza zarar veremedi.
+      </p>
+      <button id="btn-restart-victory" class="btn-primary" style="background: linear-gradient(135deg, #059669, #10b981);">YENİDEN OYNA</button>
+    </div>
+  </div>
+
+  <!-- Kaybetme Modalı -->
+  <div id="gameover-modal" class="fullscreen-modal hidden">
+    <div class="modal-box glass-panel" style="border-color: var(--color-rose);">
+      <h2 style="font-size: 24px; font-weight: 800; color: var(--color-rose);">KENTSEL DİRENÇ İFLASI</h2>
+      <p id="gameover-reason" style="font-size: 13px; color: #fca5a5; line-height: 1.6;"></p>
+      <button id="btn-restart-gameover" class="btn-primary" style="background: linear-gradient(135deg, #e11d48, #f43f5e);">YENİDEN DENE</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast">Bildirim mesajı</div>
+
+</body>
+</html>
