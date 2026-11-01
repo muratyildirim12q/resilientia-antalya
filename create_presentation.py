@@ -88,6 +88,18 @@ def build_presentation(embed_video=False):
 
     # === SLIDE 2: ODAK TEMA ===
     s2 = prs.slides[1]
+
+    # Remove the template's oversized transparent Resim 4 wrapper
+    shapes_to_remove_s2 = [s for s in s2.shapes if s.name == 'Resim 4']
+    for s in shapes_to_remove_s2:
+        s2.shapes._spTree.remove(s._element)
+
+    # Place the cropped COP31 logo strictly on the right side
+    cropped_cop31 = r'C:\Users\sy827\.gemini\antigravity\scratch\resilientia-antalya\cop31_logo_cropped.png'
+    if os.path.exists(cropped_cop31):
+        s2.shapes.add_picture(cropped_cop31, Emu(6000000), Emu(2300000), width=Emu(4800000), height=Emu(1940000))
+
+    # Position text box strictly on the left side
     for shape in s2.shapes:
         if shape.name == 'Metin kutusu 5':
             lines = [
@@ -107,7 +119,7 @@ def build_presentation(embed_video=False):
             ]
             shape.left = Emu(650000)
             shape.top = Emu(1650000)
-            shape.width = Emu(4200000)
+            shape.width = Emu(4800000)
             shape.height = Emu(5000000)
             set_multiline(shape, lines)
 
