@@ -825,12 +825,15 @@ body, html {
 }
 
 .menu-hero-title {
-  font-size: clamp(28px, 4vw, 38px);
-  font-weight: 800;
-  letter-spacing: 3px;
-  color: #ffffff;
-  text-shadow: 0 4px 20px rgba(14, 165, 233, 0.35);
-  line-height: 1.05;
+  font-size: clamp(32px, 4.8vw, 44px);
+  font-weight: 900;
+  letter-spacing: 3.5px;
+  background: linear-gradient(135deg, #ffffff 15%, #38bdf8 60%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 22px rgba(56, 189, 248, 0.65));
+  line-height: 1.1;
+  margin-top: 4px;
 }
 
 .menu-hero-subtitle {
