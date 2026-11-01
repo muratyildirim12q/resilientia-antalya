@@ -1952,6 +1952,11 @@ let lastTime = performance.now();
 function animate(currentTime) {
   requestAnimationFrame(animate);
 
+if (new URLSearchParams(window.location.search).has('autostart')) {
+  if (startModal) startModal.classList.add('hidden');
+  game.isPaused = false;
+}
+
   const dt = Math.min((currentTime - lastTime) / 1000, 0.1);
   lastTime = currentTime;
 
@@ -1966,3 +1971,8 @@ function animate(currentTime) {
 }
 
 requestAnimationFrame(animate);
+
+if (new URLSearchParams(window.location.search).has('autostart')) {
+  if (startModal) startModal.classList.add('hidden');
+  game.isPaused = false;
+}
