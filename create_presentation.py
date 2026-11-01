@@ -91,24 +91,24 @@ def build_presentation(embed_video=False):
     for shape in s2.shapes:
         if shape.name == 'Metin kutusu 5':
             lines = [
-                {'text': 'Projede Bütünleştirilen Hackathon Temaları:', 'size': 16, 'bold': True, 'color': CYAN_ACCENT},
-                {'text': '', 'size': 6},
-                {'text': '1. İklim Dirençli Şehirler (Ana Odak):', 'size': 14, 'bold': True, 'color': DARK_NAVY},
-                {'text': 'Ani sağanak ve taşkınlara karşı sünger parklar, yağmur hendekleri ve aşırı sıcak dalgalarını kırıcı yeşil koridorlar.', 'size': 12, 'bold': False, 'color': TEXT_MUTED},
+                {'text': 'Projede Bütünleştirilen Hackathon Temaları:', 'size': 15, 'bold': True, 'color': CYAN_ACCENT},
                 {'text': '', 'size': 5},
-                {'text': '2. Sıfır Atık (Kentsel Hijyen ve Drenaj):', 'size': 14, 'bold': True, 'color': DARK_NAVY},
-                {'text': 'Mazgalların ve su kanallarının tıkanmasını önleyen 2 personelli sokak çöp toplama ve döngüsel atık yönetimi.', 'size': 12, 'bold': False, 'color': TEXT_MUTED},
-                {'text': '', 'size': 5},
-                {'text': '3. Okyanuslar ve Denizler (Kıyı Koruma):', 'size': 14, 'bold': True, 'color': DARK_NAVY},
-                {'text': 'Akdeniz kıyısında deniz çöplerini toplayan otonom güneş enerjili katamaran ve Caretta Caretta yaşam alanları.', 'size': 12, 'bold': False, 'color': TEXT_MUTED},
-                {'text': '', 'size': 5},
-                {'text': '4. Yenilenebilir Enerji & İklim Eğitimi:', 'size': 14, 'bold': True, 'color': DARK_NAVY},
-                {'text': 'Güneş enerjili saha operasyonları ve Danışman Murat Bey rehberliğinde interaktif kentsel iklim bilinci.', 'size': 12, 'bold': False, 'color': TEXT_MUTED}
+                {'text': '1. İklim Dirençli Şehirler (Ana Odak):', 'size': 13, 'bold': True, 'color': DARK_NAVY},
+                {'text': 'Ani sağanak ve taşkınlara karşı sünger parklar, yağmur hendekleri ve aşırı sıcak dalgalarını kırıcı yeşil koridorlar.', 'size': 11, 'bold': False, 'color': TEXT_MUTED},
+                {'text': '', 'size': 4},
+                {'text': '2. Sıfır Atık (Kentsel Hijyen ve Drenaj):', 'size': 13, 'bold': True, 'color': DARK_NAVY},
+                {'text': 'Mazgalların ve su kanallarının tıkanmasını önleyen 2 personelli sokak çöp toplama ve döngüsel atık yönetimi.', 'size': 11, 'bold': False, 'color': TEXT_MUTED},
+                {'text': '', 'size': 4},
+                {'text': '3. Okyanuslar ve Denizler (Kıyı Koruma):', 'size': 13, 'bold': True, 'color': DARK_NAVY},
+                {'text': 'Akdeniz kıyısında deniz çöplerini toplayan otonom güneş enerjili katamaran ve Caretta Caretta yaşam alanları.', 'size': 11, 'bold': False, 'color': TEXT_MUTED},
+                {'text': '', 'size': 4},
+                {'text': '4. Yenilenebilir Enerji & İklim Eğitimi:', 'size': 13, 'bold': True, 'color': DARK_NAVY},
+                {'text': 'Güneş enerjili saha operasyonları ve Danışman Murat Bey rehberliğinde interaktif kentsel iklim bilinci.', 'size': 11, 'bold': False, 'color': TEXT_MUTED}
             ]
-            shape.left = Emu(793214)
-            shape.top = Emu(1700000)
-            shape.width = Emu(5400000)
-            shape.height = Emu(4800000)
+            shape.left = Emu(650000)
+            shape.top = Emu(1650000)
+            shape.width = Emu(4200000)
+            shape.height = Emu(5000000)
             set_multiline(shape, lines)
 
     # === SLIDE 3: OYUN HİKAYESİ ===
