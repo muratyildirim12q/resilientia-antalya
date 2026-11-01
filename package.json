@@ -1,7 +1,7 @@
 {
   "name": "resilientia-antalya",
   "version": "1.0.0",
-  "description": "COP31 Game Hackathon: Climate-Resilient Sponge City Simulation",
+  "description": "Antalya 2031: Climate-Resilient Sponge City Simulation",
   "type": "module",
   "scripts": {
     "dev": "vite",
