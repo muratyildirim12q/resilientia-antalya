@@ -266,17 +266,17 @@ def build_presentation(embed_video=False):
     for shape in s8.shapes:
         if shape.name == 'Metin kutusu 25':
             lines = [
-                {'text': 'Aşama 1 (1 - 2 Ay) — Mobil Dokunmatik Arayüz & Cilalama:', 'size': 14, 'bold': True, 'color': CYAN_ACCENT},
-                {'text': '• Tablet ve mobil cihazlar için optimize edilmiş dokunmatik kamera kontrolleri.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
-                {'text': '• Dinamik ortam ses efektleri (yağmur, fırtına, araç kornası, dalga sesleri).', 'size': 12, 'bold': False, 'color': DARK_NAVY},
+                {'text': 'Aşama 1 (1 - 2 Ay) — Ses Tasarımı & Mobil Dokunmatik UI:', 'size': 14, 'bold': True, 'color': CYAN_ACCENT},
+                {'text': '• Dokunmatik ekranlar (tablet ve telefon) için optimize edilmiş sezgisel kamera kontrolleri.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
+                {'text': '• Dinamik çevre ve operasyon sesleri (yağmur, su tahliyesi, çöp kamyonu ve katamaran sesleri).', 'size': 12, 'bold': False, 'color': DARK_NAVY},
                 {'text': '', 'size': 5},
-                {'text': 'Aşama 2 (2 - 4 Ay) — Antalya İlçe Senaryoları & Afet Çeşitliliği:', 'size': 14, 'bold': True, 'color': CYAN_ACCENT},
-                {'text': '• Konyaaltı Falez Erozyonu ve deniz seviyesi yükselmesi senaryosu.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
-                {'text': '• Alanya / Manavgat bölgesi için orman yangını sonrası ani sel rehabilitasyonu.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
+                {'text': 'Aşama 2 (2 - 4 Ay) — Yeni Afet Türleri & Ekolojik Yapılar:', 'size': 14, 'bold': True, 'color': CYAN_ACCENT},
+                {'text': '• Aşırı sıcak kubbesi ve kentsel ısı adası krizi: Şehir ısısını düşüren yeşil çatı ve gölgelik mekanikleri.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
+                {'text': '• Yeraltı yağmur suyu sarnıçları ve suyun kriz sonrasında yeniden kullanımı mekanizması.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
                 {'text': '', 'size': 5},
-                {'text': 'Aşama 3 (4 - 6 Ay) — Bağımsız Web Dağıtımı & Topluluk:', 'size': 14, 'bold': True, 'color': CYAN_ACCENT},
-                {'text': '• Itch.io ve bağımsız web portallarında genel oyuncu kitlesine açık erişim.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
-                {'text': '• Oyuncu geri bildirimleriyle kentsel strateji ve oynanış dengesinin geliştirilmesi.', 'size': 12, 'bold': False, 'color': DARK_NAVY}
+                {'text': 'Aşama 3 (4 - 6 Ay) — Başarı Sistemi & Bağımsız Web Yayını:', 'size': 14, 'bold': True, 'color': CYAN_ACCENT},
+                {'text': '• Kriz yönetimi başarı rozetleri (Sıfır Can Kaybı, Temiz Körfez, Tam Dirençli Şehir puanlaması).', 'size': 12, 'bold': False, 'color': DARK_NAVY},
+                {'text': '• Itch.io ve bağımsız web platformlarında ücretsiz erişim ile oyuncu geri bildirim döngüsü.', 'size': 12, 'bold': False, 'color': DARK_NAVY}
             ]
             shape.left = Emu(793215)
             shape.top = Emu(1700000)
