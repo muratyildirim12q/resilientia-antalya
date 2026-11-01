@@ -42,7 +42,7 @@ export class WorldScene {
     this.controls.maxDistance = 82;
     this.controls.target.set(0, 0.5, 2);
     this.controls.mouseButtons = {
-      LEFT: null, // Sol tık inşaat / seçim için ayrıldı; mouse çekince kamera dönmez
+      LEFT: THREE.MOUSE.ROTATE, // Sol tık ile klasik kamera döndürme / açı verme
       MIDDLE: THREE.MOUSE.PAN,
       RIGHT: THREE.MOUSE.ROTATE
     };
