@@ -274,9 +274,9 @@ def build_presentation(embed_video=False):
                 {'text': '• Konyaaltı Falez Erozyonu ve deniz seviyesi yükselmesi senaryosu.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
                 {'text': '• Alanya / Manavgat bölgesi için orman yangını sonrası ani sel rehabilitasyonu.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
                 {'text': '', 'size': 5},
-                {'text': 'Aşama 3 (4 - 6 Ay) — Bağımsız Dağıtım & Eğitim Modülü:', 'size': 14, 'bold': True, 'color': CYAN_ACCENT},
-                {'text': '• Itch.io ve bağımsız web portallarında genel oyuncu kitlesine ücretsiz erişim.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
-                {'text': '• Okullar ve belediyeler için kentsel iklim bilinci atölye simülasyon kiti.', 'size': 12, 'bold': False, 'color': DARK_NAVY}
+                {'text': 'Aşama 3 (4 - 6 Ay) — Bağımsız Web Dağıtımı & Topluluk:', 'size': 14, 'bold': True, 'color': CYAN_ACCENT},
+                {'text': '• Itch.io ve bağımsız web portallarında genel oyuncu kitlesine açık erişim.', 'size': 12, 'bold': False, 'color': DARK_NAVY},
+                {'text': '• Oyuncu geri bildirimleriyle kentsel strateji ve oynanış dengesinin geliştirilmesi.', 'size': 12, 'bold': False, 'color': DARK_NAVY}
             ]
             shape.left = Emu(793215)
             shape.top = Emu(1700000)
@@ -334,19 +334,15 @@ prs_standard = build_presentation(embed_video=False)
 out_std = r'C:\Users\sy827\.gemini\antigravity\scratch\resilientia-antalya\RESILIENTIA_ANTALYA_2031_SUNUM.pptx'
 out_std_downloads = r'C:\Users\sy827\Downloads\RESILIENTIA_ANTALYA_2031_SUNUM.pptx'
 out_std_downloads_v2 = r'C:\Users\sy827\Downloads\RESILIENTIA_ANTALYA_2031_GUNCEL_SUNUM.pptx'
+out_std_downloads_son = r'C:\Users\sy827\Downloads\RESILIENTIA_ANTALYA_2031_SUNUM_SON.pptx'
 
 prs_standard.save(out_std)
-try:
-    shutil.copy2(out_std, out_std_downloads)
-    print(f'Saved standard to Downloads: {out_std_downloads}')
-except Exception as e:
-    print('Notice for standard downloads copy:', e)
-
-try:
-    shutil.copy2(out_std, out_std_downloads_v2)
-    print(f'Saved standard to Downloads v2: {out_std_downloads_v2}')
-except Exception as e:
-    pass
+for path in [out_std_downloads, out_std_downloads_v2, out_std_downloads_son]:
+    try:
+        shutil.copy2(out_std, path)
+        print(f'Saved standard to: {path}')
+    except Exception as e:
+        print(f'Notice for copy to {path}: {e}')
 
 # 2. Build embedded video presentation (Full MP4 directly embedded inside slide 5)
 if os.path.exists(video_file):
